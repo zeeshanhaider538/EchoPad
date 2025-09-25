@@ -1,3 +1,4 @@
+"use client";
 import { Note as NoteModal } from "@/db/types";
 import {
   Card,
@@ -6,13 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from "./card";
+import AddEditNoteDialoge from "../AddEditNoteDialog";
+import { useState } from "react";
 
 interface NoteProp {
   note: NoteModal;
 }
 
 export default function Note({ note }: NoteProp) {
-  const wasUpdated = !!note.updated_at && note.updated_at > note.created_at;
+  const [showAddEditNoteDialog, setShowAddEditNoteDialog] = useState(false);
+  const wasUpdated = note.updated_at && note.updated_at > note.created_at;
   const createdUpdatedAtTimestamp = (
     wasUpdated ? note.updated_at : note.created_at
   )?.toDateString();
@@ -20,7 +24,7 @@ export default function Note({ note }: NoteProp) {
     <>
       <Card
         className="cursor-pointer transition-shadow hover:shadow-lg"
-        // onClick={() => setShowAddEditNoteDialog(true)}
+        onClick={() => setShowAddEditNoteDialog(true)}
       >
         <CardHeader>
           <CardTitle>{note.title}</CardTitle>
@@ -34,11 +38,11 @@ export default function Note({ note }: NoteProp) {
           </CardContent>
         </CardHeader>
       </Card>
-      {/* <AddEditNoteDialog
+      <AddEditNoteDialoge
         open={showAddEditNoteDialog}
         setOpen={setShowAddEditNoteDialog}
         noteToEdit={note}
-      /> */}
+      />
     </>
   );
 }
