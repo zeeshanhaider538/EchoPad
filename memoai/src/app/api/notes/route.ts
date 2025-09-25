@@ -1,7 +1,17 @@
 import { db } from "@/db";
-import { getNoteById, updatedNotes } from "@/db/repositories/notes";
+import { notesIndex } from "@/db/pinecone";
+import {
+  deletedNotes,
+  getNoteById,
+  updatedNotes,
+} from "@/db/repositories/notes";
 import { notes } from "@/db/schema";
-import { createNoteSchema, updatedNoteSchema } from "@/lib/validation/notes";
+import { getEmbedding } from "@/lib/google";
+import {
+  createNoteSchema,
+  deleteNoteSchema,
+  updatedNoteSchema,
+} from "@/lib/validation/notes";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
@@ -17,14 +27,27 @@ export async function POST(req: Request) {
     if (!userId) {
       return Response.json({ error: "Unauthorized " }, { status: 401 });
     }
-    const note = await db
-      .insert(notes)
-      .values({
-        user_id: userId,
-        title: title,
-        content: content ?? null,
-      })
-      .returning();
+    const embedding = await getEmbeddingForNote(title, content);
+    console.log("embedding", embedding);
+    const note = await db.transaction(async (tx) => {
+      const note = await tx
+        .insert(notes)
+        .values({
+          user_id: userId,
+          title: title,
+          content: content ?? null,
+        })
+        .returning();
+      await notesIndex.upsert([
+        {
+          id: note[0].id.toString(),
+          values: embedding,
+          metadata: { userId },
+        },
+      ]);
+      return note;
+    });
+
     return Response.json(note[0], { status: 201 });
   } catch (error) {
     console.error(error);
@@ -59,4 +82,34 @@ export async function PUT(req: Request) {
     console.error(error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+    const parseResult = deleteNoteSchema.safeParse(body);
+    if (!parseResult.success) {
+      console.error(parseResult.error);
+      return Response.json({ error: "Invalid input" }, { status: 400 });
+    }
+    const { id } = parseResult.data;
+    const { userId } = await auth();
+
+    const note = await getNoteById(id);
+    if (!note) {
+      return Response.json({ error: "Note not found" }, { status: 404 });
+    }
+    if (!userId || userId !== note.user_id) {
+      return Response.json({ error: "Unauthorized " }, { status: 401 });
+    }
+    await deletedNotes(id);
+    return Response.json({ message: "Note Deleted" }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+async function getEmbeddingForNote(title: string, content: string | undefined) {
+  return getEmbedding(title + "\n\n" + (content ?? ""));
 }
