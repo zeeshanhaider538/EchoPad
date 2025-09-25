@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "..";
 import { notes } from "../schema";
 
@@ -26,9 +26,17 @@ export async function updatedNotes(id: number, data: UpdateNoteProp) {
     .update(notes)
     .set({
       ...data,
-      updated_at: new Date(),
+      updated_at: sql`NOW()`,
     })
     .where(eq(notes.id, id))
     .returning();
   return updatedNote;
+}
+
+export async function deletedNotes(id: number) {
+  const [deletedNote] = await db
+    .delete(notes)
+    .where(eq(notes.id, id))
+    .returning();
+  return deletedNote;
 }
