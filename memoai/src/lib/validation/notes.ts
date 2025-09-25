@@ -6,3 +6,10 @@ export const createNoteSchema = z.object({
 });
 
 export type createNoteSchema = z.infer<typeof createNoteSchema>;
+
+export const updatedNoteSchema = createNoteSchema.extend({
+  id: z.int().min(1),
+});
+export const deleteNoteSchema = z.object({
+  id: z.int().min(1),
+});
