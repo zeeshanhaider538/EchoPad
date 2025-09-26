@@ -1,9 +1,9 @@
 import { db } from "@/db";
 import { notesIndex } from "@/db/pinecone";
 import {
-  deletedNotes,
+  //   deletedNotes,
   getNoteById,
-  updatedNotes,
+  //   updatedNotes,
 } from "@/db/repositories/notes";
 import { notes } from "@/db/schema";
 import { getEmbedding } from "@/lib/google";
@@ -13,6 +13,7 @@ import {
   updatedNoteSchema,
 } from "@/lib/validation/notes";
 import { auth } from "@clerk/nextjs/server";
+import { eq, sql } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Unauthorized " }, { status: 401 });
     }
     const embedding = await getEmbeddingForNote(title, content);
-    console.log("embedding", embedding);
+    // console.log("embedding", embedding);
     const note = await db.transaction(async (tx) => {
       const note = await tx
         .insert(notes)
@@ -73,10 +74,28 @@ export async function PUT(req: Request) {
     if (!userId || userId !== note.user_id) {
       return Response.json({ error: "Unauthorized " }, { status: 401 });
     }
-    const updatedNote = await updatedNotes(note.id, {
-      title,
-      content,
+    const embedding = await getEmbeddingForNote(title, content);
+    const updatedNote = await db.transaction(async (tx) => {
+      const updatedNote = await tx
+        .update(notes)
+        .set({
+          title,
+          content,
+          updated_at: sql`NOW()`,
+        })
+        .where(eq(notes.id, id))
+        .returning();
+
+      await notesIndex.upsert([
+        {
+          id: note.id.toString(),
+          values: embedding,
+          metadata: { userId },
+        },
+      ]);
+      return updatedNote;
     });
+
     return Response.json({ note: updatedNote }, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -102,7 +121,16 @@ export async function DELETE(req: Request) {
     if (!userId || userId !== note.user_id) {
       return Response.json({ error: "Unauthorized " }, { status: 401 });
     }
-    await deletedNotes(id);
+    await db.transaction(async (tx) => {
+      const deletedNote = await tx
+        .delete(notes)
+        .where(eq(notes.id, id))
+        .returning();
+
+      await notesIndex.deleteOne(id.toString());
+      return deletedNote;
+    });
+    // await deletedNotes(id);
     return Response.json({ message: "Note Deleted" }, { status: 200 });
   } catch (error) {
     console.error(error);
