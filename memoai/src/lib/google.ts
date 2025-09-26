@@ -1,18 +1,11 @@
-// src/lib/google-embeddings.ts
 import { embed } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 // Initialize Google client with your API key
 const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY!, // must be set in .env.local
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!, // must be set in .env.local
 });
 
-/**
- * Generate an embedding vector for the given text using Google AI.
- *
- * @param text - The input string to embed
- * @returns A numeric vector representing the semantic meaning of the text
- */
 export async function getEmbedding(text: string): Promise<number[]> {
   if (!text || text.trim().length === 0) {
     throw new Error("Text must not be empty.");
