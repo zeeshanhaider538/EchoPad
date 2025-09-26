@@ -11,7 +11,7 @@ export default async function NotesPage() {
   const { userId } = await auth();
   if (!userId) throw Error("UserId Undefined");
   const allNotes = await getUserNotes(userId);
-  console.log(allNotes);
+  // console.log(allNotes);
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {allNotes.map((note) => (
