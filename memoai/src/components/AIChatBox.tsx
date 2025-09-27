@@ -3,7 +3,7 @@ import { UIMessage, useChat } from "@ai-sdk/react";
 import { Bot, XCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 
