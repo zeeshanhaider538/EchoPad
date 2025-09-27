@@ -36,23 +36,25 @@ export default function AIChatBox({ open, onClose }: AIChatBoxProps) {
         open ? "fixed" : "hidden",
       )}
     >
-      <button onClick={onClose} className="mb-1 ms-auto block">
-        <XCircle size={30} />
-      </button>
-      <div className="flex h-[600px] flex-col rounded bg-background shadow-xl border">
-        <div className="h-full mt-3 px-3 overflow-y-auto">
-          {messages.map((msg) => (
-            <ChatMessage key={msg.id} message={msg} status={status} />
-          ))}
+      <div className="flex max-h-[70vh] flex-col">
+        <button onClick={onClose} className="mb-1 ms-auto block">
+          <XCircle size={30} />
+        </button>
+        <div className="flex h-[600px] flex-col rounded bg-background shadow-xl border">
+          <div className="h-full mt-3 px-3 overflow-y-auto">
+            {messages.map((msg) => (
+              <ChatMessage key={msg.id} message={msg} status={status} />
+            ))}
+          </div>
+          <form onSubmit={handleSubmit} className="m-3 flex gap-1">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Say Something ..."
+            />
+            <Button type="submit">Send</Button>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="m-3 flex gap-1">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Say Something ..."
-          />
-          <Button type="submit">Send</Button>
-        </form>
       </div>
     </div>
   );
