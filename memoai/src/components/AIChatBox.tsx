@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import { UIMessage, useChat } from "@ai-sdk/react";
-import { Bot, XCircle } from "lucide-react";
+import { Bot, Trash, XCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 
@@ -13,8 +13,20 @@ interface AIChatBoxProps {
 }
 
 export default function AIChatBox({ open, onClose }: AIChatBoxProps) {
-  const { messages, sendMessage, error, setMessages } = useChat();
+  const { messages, sendMessage, error, setMessages, status } = useChat();
   const [input, setInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+  useEffect(() => {
+    if (open) {
+      inputRef.current?.focus();
+    }
+  }, [open]);
   //   console.log("Ai Chatbot box open ", open);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +41,9 @@ export default function AIChatBox({ open, onClose }: AIChatBoxProps) {
     );
     setInput("");
   };
+
+  const isLastMessageIsUser = messages[messages.length - 1]?.role === "user";
+
   return (
     <div
       className={cn(
@@ -40,17 +55,58 @@ export default function AIChatBox({ open, onClose }: AIChatBoxProps) {
         <button onClick={onClose} className="mb-1 ms-auto block">
           <XCircle size={30} />
         </button>
-        <div className="flex h-[600px] flex-col rounded bg-background shadow-xl border">
-          <div className="h-full mt-3 px-3 overflow-y-auto">
+        <div className="flex h-[600px] flex-col rounded bg-background shadow-xl border overflow-y-auto">
+          <div className="h-full mt-3 px-3 overflow-y-auto" ref={scrollRef}>
             {messages.map((msg) => (
-              <ChatMessage key={msg.id} message={msg} status={status} />
+              <ChatMessage key={msg.id} message={msg} />
             ))}
+            {isLastMessageIsUser && status === "submitted" && (
+              <ChatMessage
+                message={{
+                  id: "thinking",
+                  role: "assistant",
+                  parts: [{ type: "text", text: "Thinking..." }],
+                }}
+              />
+            )}
+            {error && (
+              <ChatMessage
+                message={{
+                  id: "error",
+                  role: "assistant",
+                  parts: [
+                    {
+                      type: "text",
+                      text: "Something went wrong. Please Try again later.",
+                    },
+                  ],
+                }}
+              />
+            )}
+            {!error && messages.length === 0 && (
+              <div className="flex justify-center items-center h-full gap-3">
+                <Bot />
+                Ask the AI a question about your Notes.
+              </div>
+            )}
           </div>
-          <form onSubmit={handleSubmit} className="m-3 flex gap-1">
+
+          <form onSubmit={handleSubmit} className="m-3 flex gap-1 h-auto">
+            <Button
+              title="Clear Chat"
+              variant="outline"
+              size="icon"
+              type="button"
+              className="shrink-0"
+              onClick={() => setMessages([])}
+            >
+              <Trash />
+            </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Say Something ..."
+              ref={inputRef}
             />
             <Button type="submit">Send</Button>
           </form>
@@ -60,13 +116,7 @@ export default function AIChatBox({ open, onClose }: AIChatBoxProps) {
   );
 }
 
-function ChatMessage({
-  message,
-  status,
-}: {
-  message: UIMessage;
-  status: string;
-}) {
+function ChatMessage({ message }: { message: UIMessage }) {
   const { user } = useUser();
   const isAiMessage = message.role === "assistant";
 
