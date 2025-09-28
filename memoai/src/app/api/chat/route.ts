@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       model: google("gemini-2.0-flash"),
       messages: [systemMessage, ...convertToModelMessages(messagesTruncated)],
     });
-    console.log("google gemini response", response);
+    // console.log("google gemini response", response);
     return response.toUIMessageStreamResponse({
       sendSources: true,
       sendReasoning: false,
