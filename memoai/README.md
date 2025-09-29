@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📓 EchoPad
 
-## Getting Started
+> An **intelligent notes app** with a unified screen for **notes** and an **AI chatbot**.  
+> Built with **Next.js, TypeScript, and Tailwind CSS**, EchoPad enables CRUD for notes and integrates AI for contextual, seamless assistance.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+- ✍️ **Notes Management** – Create, read, update, and delete notes
+- 🤖 **AI Chatbot** – Contextual chat powered by Vercel AI SDK + Google AI
+- 🔐 **Authentication** – Secure login with Clerk.js
+- 🗄️ **Database Layer** – PostgreSQL + Drizzle ORM
+- 📂 **Vector Search** – Semantic search with Pinecone
+- 🎨 **Modern UI/UX** – Tailwind CSS + Radix UI + animations
+- 🌗 **Light/Dark Theme** – Handled via next-themes
+- ✅ **Form Validation** – react-hook-form + zod
+- ⚡ **DX Focused** – TypeScript, ESLint, Prettier, Drizzle Kit
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend & Framework**
+
+- Next.js 14
+- React 18
+- TypeScript
+- Tailwind CSS
+- Radix UI
+
+**AI & Vector Search**
+
+- Vercel AI SDK
+- @ai-sdk/google
+- Pinecone
+
+**Auth & State**
+
+- Clerk.js
+- react-hook-form + zod
+
+**Database**
+
+- PostgreSQL
+- Drizzle ORM
+
+**Tooling**
+
+- ESLint + Prettier
+- Drizzle Kit
+- Tailwind Merge / Class Variance Authority / clsx
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/echopad.git
+cd echopad
+
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install Dependences
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a .env.local file:
+DATABASE_URL=your_postgres_connection_string
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+PINECONE_API_KEY=your_pinecone_api_key
+GOOGLE_API_KEY=your_google_api_key
 
-## Learn More
+### Run Migrations
 
-To learn more about Next.js, take a look at the following resources:
+npm run db:push
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Run Server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+npm run dev
 
-## Deploy on Vercel
+## Folder Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+.
+├── drizzle/ # Database migrations & schema
+├── src/
+│ ├── app/ # Next.js app router
+│ ├── components/ # Reusable UI components
+│ ├── lib/ # Utilities (db, auth, AI helpers)
+│ ├── hooks/ # Custom React hooks
+│ └── styles/ # Global styles
+├── .env.local # Environment variables
+└── package.json
