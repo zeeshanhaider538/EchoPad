@@ -84,7 +84,7 @@ npm run db:push
 npm run dev
 
 ## Folder Structure
-
+bash
 .
 ├── drizzle/ # Database migrations & schema
 ├── src/
