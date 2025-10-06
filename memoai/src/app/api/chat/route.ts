@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       .select()
       .from(notes)
       .where(inArray(notes.id, matches));
-    console.log("Query Result ", relevantNotes);
+    // console.log("Query Result ", relevantNotes);
 
     // Flatten your notes into a context string
     const notesContext =
