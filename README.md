@@ -69,12 +69,13 @@ cd echopad
 npm install
 
 Create a .env.local file:
+``` bash
 DATABASE_URL=your_postgres_connection_string
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
 PINECONE_API_KEY=your_pinecone_api_key
 GOOGLE_API_KEY=your_google_api_key
-
+```
 ### Run Migrations
 
 npm run db:push
@@ -84,7 +85,8 @@ npm run db:push
 npm run dev
 
 ## Folder Structure
-
+```
+bash
 .
 ├── drizzle/ # Database migrations & schema
 ├── src/
